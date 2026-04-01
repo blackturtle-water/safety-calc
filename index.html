@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무재해 추진현황 계산기 | Safety Milestone Tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="shield-icon">🛡️</span> 무재해 추진현황 계산기</h1>
+            <p class="subtitle">안전한 일터를 위한 정확한 데이터 관리</p>
+        </header>
+
+        <main class="dashboard">
+            <!-- Input Section -->
+            <section class="glass-card input-section">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="startDate">🗓️ 시작일 (기준일)</label>
+                        <input type="date" id="startDate" value="2021-01-25">
+                    </div>
+                    <div class="input-group">
+                        <label for="cycleDays">🔄 배수 기준 (일)</label>
+                        <input type="number" id="cycleDays" value="390" min="1">
+                    </div>
+                    <div class="input-group">
+                        <label for="referenceDate">📍 현재일 (산정일)</label>
+                        <input type="date" id="referenceDate">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Main Display -->
+            <section class="glass-card main-stats">
+                <div class="stat-main">
+                    <h3>현재 무재해 일수</h3>
+                    <div class="counter-container">
+                        <span id="currentDayCount" class="counter">0</span>
+                        <span class="unit">일차</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                        <span id="progressText" class="progress-text">0% 완료</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Grid for Lookup and Milestones -->
+            <div class="info-grid">
+                <!-- Lookup Section -->
+                <section class="glass-card lookup-section">
+                    <h3>⚡ 배수 즉시 조회</h3>
+                    <p class="description">확인하고 싶은 배수 숫자를 입력하세요.</p>
+                    <div class="lookup-input-group">
+                        <input type="number" id="lookupMultiple" placeholder="예: 5" min="1">
+                        <span class="unit-label">배수</span>
+                    </div>
+                    <div id="lookupResult" class="lookup-result">
+                        <div class="result-item">
+                            <span class="label">목표 일수:</span>
+                            <span id="lookupTargetDays">---</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="label">달성 날짜:</span>
+                            <span id="lookupTargetDate">---</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Milestones Section -->
+                <section class="glass-card milestones-section">
+                    <h3>🚀 향후 주요 마일스톤</h3>
+                    <div class="milestone-list">
+                        <div class="milestone-card active" id="nextMilestoneCard">
+                            <div class="m-header">
+                                <span class="m-badge" id="nextM_Badge">다음 배수</span>
+                                <span class="m-multiple" id="nextM_Title">0배수</span>
+                            </div>
+                            <div class="m-body">
+                                <p class="m-date" id="nextM_Date">---</p>
+                                <p class="m-remaining" id="nextM_Remaining">---일 남음</p>
+                            </div>
+                        </div>
+                        <div class="milestone-card" id="futureMilestoneCard">
+                            <div class="m-header">
+                                <span class="m-badge">미래 배수</span>
+                                <span class="m-multiple" id="futureM_Title">0배수</span>
+                            </div>
+                            <div class="m-body">
+                                <p class="m-date" id="futureM_Date">---</p>
+                                <p class="m-remaining" id="futureM_Remaining">---일 남음</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <p>© 2026 Safety Management System. Keep working safely.</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
