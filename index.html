@@ -21,16 +21,32 @@
             <section class="glass-card input-section">
                 <div class="input-grid">
                     <div class="input-group">
-                        <label for="startDate">🗓️ 시작일 (기준일)</label>
-                        <input type="date" id="startDate" value="2021-01-25">
+                        <label>🗓️ 시작일 (기준일)</label>
+                        <div class="date-input-container">
+                            <div class="date-input-group">
+                                <input type="text" id="startDate_Y" class="year-input" placeholder="YYYY" maxlength="4" inputmode="numeric" value="2021">
+                                <span class="sep">-</span>
+                                <input type="text" id="startDate_M" class="month-input" placeholder="MM" maxlength="2" inputmode="numeric" value="01">
+                                <span class="sep">-</span>
+                                <input type="text" id="startDate_D" class="day-input" placeholder="DD" maxlength="2" inputmode="numeric" value="25">
+                            </div>
+                        </div>
                     </div>
                     <div class="input-group">
                         <label for="cycleDays">🔄 배수 기준 (일)</label>
                         <input type="number" id="cycleDays" value="390" min="1">
                     </div>
                     <div class="input-group">
-                        <label for="referenceDate">📍 현재일 (산정일)</label>
-                        <input type="date" id="referenceDate">
+                        <label>📍 현재일 (산정일)</label>
+                        <div class="date-input-container">
+                            <div class="date-input-group">
+                                <input type="text" id="referenceDate_Y" class="year-input" placeholder="YYYY" maxlength="4" inputmode="numeric">
+                                <span class="sep">-</span>
+                                <input type="text" id="referenceDate_M" class="month-input" placeholder="MM" maxlength="2" inputmode="numeric">
+                                <span class="sep">-</span>
+                                <input type="text" id="referenceDate_D" class="day-input" placeholder="DD" maxlength="2" inputmode="numeric">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

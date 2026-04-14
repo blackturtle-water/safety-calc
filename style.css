@@ -106,6 +106,44 @@ h1 {
     box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
 }
 
+/* Split Date Input Styles */
+.date-input-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 0 0.5rem;
+    transition: var(--transition-fast);
+}
+
+.date-input-group:focus-within {
+    border-color: var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.15);
+}
+
+.date-input-group input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.75rem 0.2rem !important;
+    color: #fff;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+}
+
+.date-input-group .year-input { width: 4rem; }
+.date-input-group .month-input, .date-input-group .day-input { width: 2.5rem; }
+
+.date-input-group .sep {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    opacity: 0.5;
+    user-select: none;
+}
+
 /* Main Display */
 .main-stats {
     margin-bottom: 1.5rem;

@@ -1,10 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const startDateInput = document.getElementById('startDate');
+    // DOM Elements - Inputs
+    const startDateIds = ['startDate_Y', 'startDate_M', 'startDate_D'];
+    const refDateIds = ['referenceDate_Y', 'referenceDate_M', 'referenceDate_D'];
+    
     const cycleDaysInput = document.getElementById('cycleDays');
-    const referenceDateInput = document.getElementById('referenceDate');
     const lookupMultipleInput = document.getElementById('lookupMultiple');
 
+    // DOM Elements - Display
     const currentDayCountEl = document.getElementById('currentDayCount');
     const progressBarEl = document.getElementById('progressBar');
     const progressTextEl = document.getElementById('progressText');
@@ -21,9 +23,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const futureM_Date = document.getElementById('futureM_Date');
     const futureM_Remaining = document.getElementById('futureM_Remaining');
 
-    // Set default reference date to today
-    const today = new Date();
-    referenceDateInput.value = today.toISOString().split('T')[0];
+    // Helper: Get Date Object from Split Inputs
+    function getDateFromSplit(prefix) {
+        const y = document.getElementById(`${prefix}_Y`).value;
+        const m = document.getElementById(`${prefix}_M`).value;
+        const d = document.getElementById(`${prefix}_D`).value;
+        
+        if (!y || !m || !d) return new Date(NaN);
+        
+        const year = parseInt(y);
+        const month = parseInt(m) - 1; // 0-indexed
+        const day = parseInt(d);
+        
+        const date = new Date(year, month, day);
+        // Validation: Check if date is logically valid (e.g., avoid Feb 31)
+        if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+            return new Date(NaN);
+        }
+        return date;
+    }
+
+    // Helper: Set Split Inputs from Date Object
+    function setSplitFromDate(prefix, date) {
+        document.getElementById(`${prefix}_Y`).value = date.getFullYear();
+        document.getElementById(`${prefix}_M`).value = String(date.getMonth() + 1).padStart(2, '0');
+        document.getElementById(`${prefix}_D`).value = String(date.getDate()).padStart(2, '0');
+    }
 
     // Helper: Format Date to YYYY-MM-DD
     function formatDate(date) {
@@ -34,16 +59,60 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${y}-${m}-${d}`;
     }
 
+    // Auto-Jump & Update Logic
+    function setupDateGroup(prefix) {
+        const y = document.getElementById(`${prefix}_Y`);
+        const m = document.getElementById(`${prefix}_M`);
+        const d = document.getElementById(`${prefix}_D`);
+
+        y.addEventListener('input', (e) => {
+            if (y.value.length >= 4) m.focus();
+            updateDashboard();
+        });
+
+        m.addEventListener('input', (e) => {
+            // Jump if 2 digits OR if first digit is > 1 (e.g., 2-9 for month)
+            if (m.value.length >= 2 || (m.value.length === 1 && parseInt(m.value) > 1)) {
+                d.focus();
+            }
+            updateDashboard();
+        });
+
+        d.addEventListener('input', () => {
+            updateDashboard();
+        });
+
+        // Handle backspace to go back to previous field
+        [m, d].forEach((el, idx) => {
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && el.value.length === 0) {
+                    const prev = idx === 0 ? y : m;
+                    prev.focus();
+                }
+            });
+        });
+    }
+
+    // Initialize default reference date to today
+    setSplitFromDate('referenceDate', new Date());
+
+    // Setup input behaviors
+    setupDateGroup('startDate');
+    setupDateGroup('referenceDate');
+
     // Main Update Function
     function updateDashboard() {
-        const startDate = new Date(startDateInput.value);
-        const refDate = new Date(referenceDateInput.value);
+        const startDate = getDateFromSplit('startDate');
+        const refDate = getDateFromSplit('referenceDate');
         const cycleDays = parseInt(cycleDaysInput.value) || 390;
 
-        if (isNaN(startDate.getTime()) || isNaN(refDate.getTime())) return;
+        if (isNaN(startDate.getTime()) || isNaN(refDate.getTime())) {
+            currentDayCountEl.textContent = "0";
+            progressBarEl.style.width = `0%`;
+            progressTextEl.textContent = `입력 대기 중...`;
+            return;
+        }
 
-        // 1. Calculate Current Day Count (Inclusive)
-        // Set both dates to midnight for accurate day calculation
         const startMid = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         const refMid = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate());
         
@@ -53,16 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentDayCountEl.textContent = currentDays.toLocaleString();
 
-        // 2. Progress Logic
         const currentCycleMod = (currentDays - 1) % cycleDays;
         const progressPercent = Math.min(100, Math.max(0, ((currentCycleMod + 1) / cycleDays) * 100));
         progressBarEl.style.width = `${progressPercent}%`;
         progressTextEl.textContent = `${progressPercent.toFixed(1)}% 완료`;
 
-        // 3. Milestones Logic
         const nextMultiple = Math.floor((currentDays + cycleDays - 1) / cycleDays);
-        // If currentDays is exactly a multiple, maybe show next one? 
-        // Let's say if we hit 390 today, "Next" is 780.
         let targetMultiple1 = nextMultiple;
         if (currentDays >= nextMultiple * cycleDays) {
             targetMultiple1 = nextMultiple + 1;
@@ -73,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMilestone(targetMultiple1, cycleDays, startDate, refMid, nextM_Title, nextM_Date, nextM_Remaining, nextM_Badge);
         updateMilestone(targetMultiple2, cycleDays, startDate, refMid, futureM_Title, futureM_Date, futureM_Remaining);
 
-        // Update Lookup if value exists
         updateLookup();
     }
 
@@ -100,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateLookup() {
         const multiple = parseFloat(lookupMultipleInput.value);
-        const startDate = new Date(startDateInput.value);
+        const startDate = getDateFromSplit('startDate');
         const cycleDays = parseInt(cycleDaysInput.value) || 390;
 
         if (isNaN(multiple) || isNaN(startDate.getTime())) {
@@ -116,13 +180,11 @@ document.addEventListener('DOMContentLoaded', () => {
         lookupTargetDateEl.textContent = formatDate(targetDate);
     }
 
-    // Event Listeners
-    [startDateInput, cycleDaysInput, referenceDateInput].forEach(el => {
-        el.addEventListener('change', updateDashboard);
-    });
-
+    // Event Listeners for other inputs
+    cycleDaysInput.addEventListener('input', updateDashboard);
     lookupMultipleInput.addEventListener('input', updateLookup);
 
     // Initial Run
     updateDashboard();
 });
+
