@@ -65,21 +65,60 @@ document.addEventListener('DOMContentLoaded', () => {
         const m = document.getElementById(`${prefix}_M`);
         const d = document.getElementById(`${prefix}_D`);
 
-        y.addEventListener('input', (e) => {
-            if (y.value.length >= 4) m.focus();
-            updateDashboard();
-        });
+        const handleInput = (el, nextEl, maxLen) => {
+            el.addEventListener('input', () => {
+                if (el.value.length >= maxLen && nextEl) {
+                    nextEl.focus();
+                }
+                updateDashboard();
+            });
 
-        m.addEventListener('input', (e) => {
-            // Jump if 2 digits OR if first digit is > 1 (e.g., 2-9 for month)
-            if (m.value.length >= 2 || (m.value.length === 1 && parseInt(m.value) > 1)) {
-                d.focus();
-            }
-            updateDashboard();
-        });
+            // Overwrite Mode Implementation
+            el.addEventListener('keydown', (e) => {
+                // If it's a numeric key
+                if (e.key >= '0' && e.key <= '9') {
+                    const start = el.selectionStart;
+                    const end = el.selectionEnd;
 
-        d.addEventListener('input', () => {
-            updateDashboard();
+                    // If no text is selected and we're not at the very end
+                    // (or even if at the end but field is full, we might want to replace the last char? No, standard is replace what's under cursor)
+                    if (start === end && start < el.value.length) {
+                        e.preventDefault();
+                        const val = el.value;
+                        // Replace character at cursor
+                        el.value = val.substring(0, start) + e.key + val.substring(start + 1);
+                        // Move cursor forward
+                        const newPos = start + 1;
+                        el.setSelectionRange(newPos, newPos);
+                        
+                        // Trigger jump if reached maxLen
+                        if (el.value.length >= maxLen && nextEl) {
+                            nextEl.focus();
+                        }
+                        updateDashboard();
+                    }
+                }
+            });
+        };
+
+        handleInput(y, m, 4);
+        handleInput(m, d, 2);
+        handleInput(d, null, 2);
+
+        // Robust Select-All Logic
+        [y, m, d].forEach(el => {
+            const selectAll = () => {
+                // Use requestAnimationFrame to ensure browser has finished its default cursor placement
+                requestAnimationFrame(() => {
+                    el.select();
+                    if (el.setSelectionRange) {
+                        el.setSelectionRange(0, el.value.length);
+                    }
+                });
+            };
+            el.addEventListener('focus', selectAll);
+            // Re-select on click to handle cases where click resets selection
+            el.addEventListener('mousedown', selectAll);
         });
 
         // Handle backspace to go back to previous field
@@ -89,16 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const prev = idx === 0 ? y : m;
                     prev.focus();
                 }
-            });
-        });
-
-        // Auto-select text on focus and click (allows immediate overwrite)
-        [y, m, d].forEach(el => {
-            el.addEventListener('focus', () => {
-                setTimeout(() => el.select(), 0);
-            });
-            el.addEventListener('click', () => {
-                el.select();
             });
         });
     }
