@@ -91,6 +91,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
+
+        // Auto-select text on focus and click (allows immediate overwrite)
+        [y, m, d].forEach(el => {
+            el.addEventListener('focus', () => {
+                setTimeout(() => el.select(), 0);
+            });
+            el.addEventListener('click', () => {
+                el.select();
+            });
+        });
     }
 
     // Initialize default reference date to today
